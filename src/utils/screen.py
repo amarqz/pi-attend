@@ -57,7 +57,7 @@ class Screen:
                 self.__lcd.write(index + 4 * row)
 
     def __define_special_chars(self) -> None:
-        self.__special_chars = ['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú', 'ñ', 'Ñ', '¡', '¿']
+        self.__special_chars = ['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú', 'ñ', 'Ñ', '¡', '¿', 'ç']
         
         self.__a_acute = [0b00010,
                           0b00100,
@@ -163,7 +163,17 @@ class Screen:
                                    0b00100,
                                    0b00100,
                                    0b00100]
+        self.__music_quaver = [0b00100,
+                               0b00110,
+                               0b00101,
+                               0b00101,
+                               0b00100,
+                               0b01100,
+                               0b11100,
+                               0b01000,
+                               ]
 
         self.__special_char_mapping = {'á': self.__a_acute, 'é': self.__e_acute, 'í': self.__i_acute, 'ó': self.__o_acute, 'ú': self.__u_acute,
                           'Á': self.__cap_a_acute, 'É': self.__cap_e_acute, 'Í': self.__cap_i_acute, 'Ó': self.__o_acute, 'Ú': self.__u_acute,
-                          'ñ': self.__spanish_n, 'Ñ': self.__cap_spanish_n, '¡': self.__open_exclamation, '¿': self.__open_interrogation}
+                          'ñ': self.__spanish_n, 'Ñ': self.__cap_spanish_n, '¡': self.__open_exclamation, '¿': self.__open_interrogation,
+                          'ç': self.__music_quaver}
