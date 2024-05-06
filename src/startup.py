@@ -13,8 +13,12 @@ class Menu:
         self.screen = Screen()
         self.keypad = Keypad()
 
-        self.screen.print_up(os.getenv("HOME_SCREEN_MSG"))
+        self.home_screen()
         print('Menu started!')
+
+    def home_screen(self):
+        self.screen.print_up(os.getenv("HOME_SCREEN_MSG_UP"))
+        self.screen.print_down("HOME_SCREEN_MSG_DOWN")
 
     def loop(self):
         while self.is_running:
@@ -32,8 +36,7 @@ class Menu:
         if await_confirmation(self, '¿Apagar equipo?'):
             print('Shutting down...')
         
-        self.screen.print_up(os.getenv("HOME_SCREEN_MSG"))
-        self.screen.print_down('')
+        self.home_screen()
 
 if __name__ == '__main__':
     load_dotenv()
