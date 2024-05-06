@@ -1,7 +1,8 @@
 import os
+import subprocess
 import nanpy
 from time import sleep
-from utils.functions import await_confirmation
+from utils.functions import (await_confirmation, loading_screen)
 from utils.keypad import Keypad
 from utils.screen import Screen
 from dotenv import load_dotenv
@@ -18,7 +19,7 @@ class Menu:
 
     def home_screen(self):
         self.screen.print_up(os.getenv("HOME_SCREEN_MSG_UP"))
-        self.screen.print_down("HOME_SCREEN_MSG_DOWN")
+        self.screen.print_down(os.getenv("HOME_SCREEN_MSG_DOWN"))
 
     def loop(self):
         while self.is_running:
@@ -34,7 +35,8 @@ class Menu:
     
     def shutdown(self) -> None:
         if await_confirmation(self, '¿Apagar equipo?'):
-            print('Shutting down...')
+            loading_screen(self, 'Apagando equipo')
+            subprocess.run(["shutdown", "-h", "now"])
         
         self.home_screen()
 

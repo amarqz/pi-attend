@@ -4,7 +4,7 @@ import warnings
 class Screen:
     def __init__(self, pins: list = [8, 9, 4, 5, 6, 7], n_col: int = 16, n_row: int = 2) -> None:
         self.__lcd = nanpy.Lcd(pins, [n_col, n_row])
-        self.__n_col = n_col
+        self.n_col = n_col
         self.__define_special_chars()
 
         print('Screen successfully initialized!')
@@ -13,7 +13,7 @@ class Screen:
         special_chars_found = {}
 
         message = self.__check_size(message)
-        message = message.center(self.__n_col, ' ')
+        message = message.center(self.n_col, ' ')
         message = self.__check_special_chars(message, special_chars_found)
 
         self.__lcd.setCursor(0, 0)
@@ -24,18 +24,25 @@ class Screen:
         special_chars_found = {}
 
         message = self.__check_size(message)
-        message = message.center(self.__n_col, ' ')
+        message = message.center(self.n_col, ' ')
         message = self.__check_special_chars(message, special_chars_found)
         
         self.__lcd.setCursor(0, 1)
         self.__lcd.printString(message)
         self.__print_special_chars(special_chars_found, 1)
+    
+    def print_at(self, col: int, row: int, msg: str) -> None:
+        self.__lcd.setCursor(col, row)
+        self.__lcd.printString(msg)
+
+    def clear(self) -> None:
+        self.__lcd.clear()
 
     def __check_size(self, txt: str) -> str:
-        if len(txt) > self.__n_col:
+        if len(txt) > self.n_col:
             warnings.warn(f'Warning! The message "{txt}" overflows the LCD size.')
             warnings.warn(f'Cropping the message to adjust it to the correct size...')
-            txt = txt[0:self.__n_col]
+            txt = txt[0:self.n_col]
         return txt
 
     def __check_special_chars(self, txt: str, chars_found: dict) -> list:
