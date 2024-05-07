@@ -9,6 +9,10 @@ class Screen:
 
         print('Screen successfully initialized!')
 
+    def full_print(self, top_message: str, bottom_message: str) -> None:
+        self.print_up(top_message)
+        self.print_down(bottom_message)
+
     def print_up(self, message: str) -> None:
         special_chars_found = {}
 
