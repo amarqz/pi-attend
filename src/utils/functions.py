@@ -3,8 +3,7 @@ import time
 from time import sleep
 
 
-def await_confirmation(menu, message: str = '¿Estás seguro?') -> bool:
-    timer = 7
+def await_confirmation(menu, message: str = '¿Estás seguro?', countdown_time: int = 7) -> bool:
     is_yes = True
 
     if len(message) > 16:
@@ -16,15 +15,14 @@ def await_confirmation(menu, message: str = '¿Estás seguro?') -> bool:
 
     sleep(0.4)
     
-    while timer >= 0: # ToDo finish timer
+    start_time = time.time()
+    while time.time() - start_time < countdown_time:
         if menu.keypad.read_button() == 'Left':
             menu.screen.print_down('<No>  Sí ')
             is_yes = False
-            timer = 7
         elif menu.keypad.read_button() == 'Right':
             menu.screen.print_down(' No  <Sí>')
             is_yes = True
-            timer = 7
         elif menu.keypad.read_button() == 'Select':
             return is_yes
 
