@@ -1,5 +1,4 @@
 import os
-import subprocess
 import nanpy
 from time import sleep
 from utils.functions import (await_confirmation, loading_screen)
@@ -36,7 +35,7 @@ class Menu:
     def shutdown(self) -> None:
         if await_confirmation(self, '¿Apagar equipo?'):
             loading_screen(self, 'Apagando equipo')
-            subprocess.run(["shutdown", "-h", "now"])
+            os.system('shutdown now')
         
         self.home_screen()
 
