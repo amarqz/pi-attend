@@ -47,7 +47,7 @@ def loading_screen(menu, message: str = 'Espera...', countdown_time: int = 3) ->
         
 def picklist(menu, options: list, message: str = 'Elige:', countdown_time: int = 20) -> (str | int | float | None):
     
-    format_selected = lambda x: f'<{x}>'.center(menu.screen.n_col, ' ')
+    give_format = lambda txt, at_pos, sel: f'<{txt}>'.center(menu.screen.n_col, ' ') if at_pos == sel else txt.center(menu.screen.n_col, ' ')
     
     display_max_width = menu.screen.n_col - 2
 
@@ -55,23 +55,32 @@ def picklist(menu, options: list, message: str = 'Elige:', countdown_time: int =
         if len(element) > display_max_width:
             warnings.warn(f'The option: {element} is too long for the display. Cropping the text...')
             options[index] = element[:display_max_width]
-    
-    number_of_options = len(options)
+
     options.insert(0, message)
-    
+
     in_view = [0, 1]
     selected = 1
+    menu.screen.full_print(give_format(options[in_view[0]], in_view[0], selected), give_format(options[in_view[1]], in_view[1], selected))
 
-    menu.screen.full_print(options[0], format_selected(options[1]))
-
+    sleep(0.15)
     start_time = time.time()
     while time.time() - start_time < countdown_time:
-        pressed_button = menu.screen.read_button()
+        pressed_button = menu.keypad.read_button()
 
         if pressed_button == 'Up':
-            pass
+            if selected == 1: pass
+            else:
+                if in_view[0] == selected:
+                    in_view = [x - 1 for x in in_view]
+                selected -= 1
+            menu.screen.full_print(give_format(options[in_view[0]], in_view[0], selected), give_format(options[in_view[1]], in_view[1], selected))
         elif pressed_button == 'Down':
-            pass
+            if selected == len(options) - 1: pass
+            else:
+                if in_view[1] == selected:
+                    in_view = [x + 1 for x in in_view]
+                selected += 1
+            menu.screen.full_print(give_format(options[in_view[0]], in_view[0], selected), give_format(options[in_view[1]], in_view[1], selected))
         elif pressed_button == 'Select':
             return options[selected]
         elif pressed_button == 'Left' or pressed_button == 'Right':

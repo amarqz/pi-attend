@@ -42,7 +42,7 @@ class Menu:
         self.home_screen()
 
     def create_new_session(self) -> None:
-        new_event_type = picklist(['Ensayo', 'Actuación'], 'Tipo de evento:')
+        new_event_type = picklist(self, ['Ensayo', 'Concierto', 'Procesión', 'Otra actuación'], 'Tipo de evento:')
         
         if new_event_type != None: # ToDo connection with DB
             pass
