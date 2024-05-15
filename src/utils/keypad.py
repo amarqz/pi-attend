@@ -17,6 +17,8 @@ class Keypad:
         elif current > 400:
             return 'Left'
         elif current > 220:
+            return 'Down'
+        elif current > 65:
             return 'Up'
         else:
             return 'Right'
