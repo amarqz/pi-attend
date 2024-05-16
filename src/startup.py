@@ -1,18 +1,26 @@
 import os
 import nanpy
+import threading
 from time import sleep
 from utils.functions import (await_confirmation, loading_screen, picklist)
 from utils.keypad import Keypad
 from utils.screen import Screen
+from utils.sensor import Sensor
 from dotenv import load_dotenv
 
 class Menu:
     def __init__(self):
         self.is_running = True
+        self.detected_tag_id = ''
+
 
         self.screen = Screen()
         self.keypad = Keypad()
+        self.sensor = Sensor()
 
+        self.__nfc_thread = threading.Thread(target=self.sensor.detect, name='detection-process', args=(self,))
+        self.__nfc_thread.start()
+        
         self.home_screen()
         print('Menu started!')
 
@@ -24,6 +32,13 @@ class Menu:
         while self.is_running:
             sleep(0.15)
             self.button_actions()
+            
+            if self.detected_tag_id != '':
+                self.detected_tag_id == ''
+
+                self.__nfc_thread.join()
+                self.__nfc_thread = threading.Thread(target=self.sensor.detect, name='detection-process', args=(self,))
+                self.__nfc_thread.start()
 
     def button_actions(self) -> None:
         match self.keypad.read_button():
@@ -36,6 +51,7 @@ class Menu:
     
     def shutdown(self) -> None:
         if await_confirmation(self, '¿Apagar equipo?'):
+            self.__nfc_thread.join()
             loading_screen(self, 'Apagando equipo')
             os.system('shutdown now')
         
