@@ -34,11 +34,12 @@ class Menu:
             self.button_actions()
             
             if self.detected_tag_id != '':
-                self.detected_tag_id == ''
+                self.detected_tag_id = ''
 
                 self.__nfc_thread.join()
                 self.__nfc_thread = threading.Thread(target=self.sensor.detect, name='detection-process', args=(self,))
                 self.__nfc_thread.start()
+
 
     def button_actions(self) -> None:
         match self.keypad.read_button():
