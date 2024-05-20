@@ -55,6 +55,7 @@ class Menu:
             self.__nfc_thread.join()
             loading_screen(self, 'Apagando equipo')
             os.system('shutdown now')
+            exit(0)
         
         self.home_screen()
 

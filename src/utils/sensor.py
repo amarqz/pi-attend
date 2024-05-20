@@ -1,5 +1,7 @@
+import os
 import nfc
 from time import sleep
+from dotenv import load_dotenv
 
 class Sensor:
     def __init__(self):
@@ -7,7 +9,7 @@ class Sensor:
         print('Sensor successfully initialized!')
 
     def detect(self, menu):
-        sleep(2)
+        sleep(float(os.getenv('DETECT_WAIT_TIME')))
 
         found_tag = self.__hardware.connect(rdwr={'on-connect': lambda tag: False})
         tag_data = found_tag.__str__()
