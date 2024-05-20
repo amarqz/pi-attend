@@ -18,8 +18,7 @@ class Menu:
         self.keypad = Keypad()
         self.sensor = Sensor()
 
-        self.__nfc_thread = threading.Thread(target=self.sensor.detect, name='detection-process', args=(self,))
-        self.__nfc_thread.start()
+        self.__create_detection_thread()
         
         self.home_screen()
         print('Menu started!')
@@ -32,32 +31,26 @@ class Menu:
         while self.is_running:
             sleep(0.15)
             self.button_actions()
-            
-            if self.detected_tag_id != '':
-                self.detected_tag_id = ''
-
-                self.__nfc_thread.join()
-                self.__nfc_thread = threading.Thread(target=self.sensor.detect, name='detection-process', args=(self,))
-                self.__nfc_thread.start()
-
 
     def button_actions(self) -> None:
         match self.keypad.read_button():
-            case 'None':
-                pass
             case 'Select':
+                self.__stop_detection_thread()
                 self.shutdown()
             case 'Up' | 'Down':
+                self.__stop_detection_thread()
                 self.create_new_session()
+            case _:
+                return
+
+        self.__create_detection_thread()
+        self.home_screen()
     
     def shutdown(self) -> None:
         if await_confirmation(self, '¿Apagar equipo?'):
-            self.__nfc_thread.join()
             loading_screen(self, 'Apagando equipo')
             os.system('shutdown now')
             exit(0)
-        
-        self.home_screen()
 
     def create_new_session(self) -> None:
         new_event_type = picklist(self, ['Ensayo', 'Concierto', 'Procesión', 'Otra actuación'], 'Tipo de evento:')
@@ -65,7 +58,14 @@ class Menu:
         if new_event_type != None: # ToDo connection with DB
             pass
 
-        self.home_screen()
+    def __create_detection_thread(self):
+        self.__nfc_thread = threading.Thread(target=self.sensor.detect, name='detection-process', args=(self,))
+        self.screen.stop_flag = False
+        self.__nfc_thread.start()
+
+    def __stop_detection_thread(self):
+        self.screen.stop_flag = True
+        self.__nfc_thread.join(1)
 
 if __name__ == '__main__':
     load_dotenv()
