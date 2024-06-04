@@ -18,6 +18,7 @@ class Menu:
         self.keypad = Keypad()
         self.sensor = Sensor()
         self.buzzer = Buzzer(16)
+        self.buzzer.play_melody('1 Up')
 
         self.__create_detection_thread()
         
