@@ -6,6 +6,7 @@ from utils.functions import (await_confirmation, loading_screen, picklist)
 from utils.keypad import Keypad
 from utils.screen import Screen
 from utils.sensor import Sensor
+from utils.buzzer import Buzzer
 from dotenv import load_dotenv
 
 class Menu:
@@ -13,10 +14,10 @@ class Menu:
         self.is_running = True
         self.detected_tag_id = ''
 
-
         self.screen = Screen()
         self.keypad = Keypad()
         self.sensor = Sensor()
+        self.buzzer = Buzzer(16)
 
         self.__create_detection_thread()
         
