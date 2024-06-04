@@ -25,7 +25,7 @@ class Buzzer:
             print('Error: Non-existent melody name.')
             return
         if len(self.__melodies[melody]['notes']) != len(self.__melodies[melody]['figures']):
-            print('Error: Melody\'s notes and figures do not match.')
+            print('Error: Melody\'s notes and figures do not have the same length.')
             return
 
         GPIO.setmode(GPIO.BOARD)
