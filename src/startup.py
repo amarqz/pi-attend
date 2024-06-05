@@ -7,6 +7,7 @@ from utils.keypad import Keypad
 from utils.screen import Screen
 from utils.sensor import Sensor
 from utils.buzzer import Buzzer
+from utils.api import APIHandler
 from dotenv import load_dotenv
 
 class Menu:
@@ -18,6 +19,7 @@ class Menu:
         self.keypad = Keypad()
         self.sensor = Sensor()
         self.buzzer = Buzzer(16)
+        self.api = APIHandler(os.getenv("POCKETBASE_URL"), os.getenv("POCKETBASE_AUTH_TOKEN"))
 
         self.__create_detection_thread()
         
