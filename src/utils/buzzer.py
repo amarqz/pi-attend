@@ -5,6 +5,7 @@ class Buzzer:
     def __init__(self, buzzer_pin: int):
         self.__define_notes_melodies()
         self.__BUZZER_PIN = buzzer_pin
+        print('Buzzer successfully initialized!')
 
     def __play_sound(self, bpm: float, figure: float, frequency: float) -> None:
         duration = self.__compute_duration(bpm, figure, frequency)
