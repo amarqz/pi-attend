@@ -6,6 +6,7 @@ class Screen:
         self.__lcd = nanpy.Lcd(pins, [n_col, n_row])
         self.n_col = n_col
         self.__define_special_chars()
+        self.print_up('Iniciando')
 
         print('Screen successfully initialized!')
 

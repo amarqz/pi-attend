@@ -1,10 +1,12 @@
 import requests
 
 class APIHandler():
-    def __init__(self, base_url: str, api_token: str) -> None:
+    def __init__(self, base_url: str, email: str, password: str) -> None:
         self.__base_url = base_url
-        self.__api_token = api_token
-        self.__headers = {"Authorization": f"Bearer {api_token}"}
+        self.__headers = {}
+        admin_info = self.post("admins/auth-with-password", json={'identity': email, 'password': password})
+        self.__headers = {"Authorization": f"Bearer {admin_info['token']}"}
+        
         print('API Handler successfully initialized!')
 
     def get(self, endpoint: str, params: str=None):

@@ -16,10 +16,18 @@ class Menu:
         self.detected_tag_id = ''
 
         self.screen = Screen()
+
+        self.screen.print_down('botonera...')
         self.keypad = Keypad()
+
+        self.screen.print_down('sensor...')
         self.sensor = Sensor()
+
+        self.screen.print_down('zumbador')
         self.buzzer = Buzzer(16)
-        self.api = APIHandler(os.getenv("POCKETBASE_URL"), os.getenv("POCKETBASE_AUTH_TOKEN"))
+        
+        self.screen.print_down('conexión API...')
+        self.api = APIHandler(os.getenv("POCKETBASE_URL"), os.getenv("POCKETBASE_USERNAME"), os.getenv("POCKETBASE_PASSWORD"))
 
         self.__create_detection_thread()
         
