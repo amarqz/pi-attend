@@ -37,14 +37,17 @@ class Menu:
         self.home_screen()
         print('Menu started!')
 
-    def home_screen(self):
+    def home_screen(self) -> None:
         self.screen.print_up(os.getenv("HOME_SCREEN_MSG_UP"))
         self.screen.print_down(self.__session_type)
 
-    def loop(self):
+    def loop(self) -> None:
         while self.is_running:
             sleep(0.15)
             self.button_actions()
+
+            if self.detected_tag_id != '':
+                self.__check_in()
 
     def button_actions(self) -> None:
         match self.keypad.read_button():
@@ -55,7 +58,7 @@ class Menu:
                 self.__stop_detection_thread()
                 self.create_new_session()
             case 'Right':
-                self.pair_card_user()
+                self.__pair_card_user()
                 self.home_screen()
                 return
             case _:
@@ -87,16 +90,16 @@ class Menu:
             self.__current_session = self.api.post(f'collections/{os.getenv("POCKETBASE_EVENTS_COLLECTION")}/records', \
                 json={'tipo': self.__session_type})['id']
 
-    def __create_detection_thread(self):
+    def __create_detection_thread(self) -> None:
         self.__nfc_thread = threading.Thread(target=self.sensor.detect, name='detection-process', args=(self,))
         self.screen.stop_flag = False
         self.__nfc_thread.start()
 
-    def __stop_detection_thread(self):
+    def __stop_detection_thread(self) -> None:
         self.screen.stop_flag = True
         self.__nfc_thread.join(1)
 
-    def __find_active_session(self):
+    def __find_active_session(self) -> None:
         today_event = self.api.get(f'collections/{os.getenv("POCKETBASE_EVENTS_COLLECTION")}/records', \
             params={'filter': f"""created >= '{datetime.today().strftime("%Y-%m-%d")} 00:00:00'""", 'sort': '-created'})['items']
         if len(today_event) == 0:
@@ -107,7 +110,7 @@ class Menu:
             self.__current_session = today_event[0]['id']
             self.__session_type = today_event[0]['tipo']
 
-    def pair_card_user(self):
+    def __pair_card_user(self) -> None:
         not_paired_users = self.api.get(f'collections/{os.getenv("POCKETBASE_MEMBERS_COLLECTION")}/records', \
             params={'filter': 'tarjeta_UID = ""', 'sort': 'nombre'})['items']
         if len(not_paired_users) == 0:
@@ -131,6 +134,7 @@ class Menu:
                     params={'filter': f'tarjeta_UID = "{self.detected_tag_id}"'})['items']
                 if len(card_uid_coincidences) > 0:
                     self.screen.full_print("Error:registrado", f"@ {card_uid_coincidences[0]['nombre']}")
+                    sleep(0.5)
                 else:
                     self.api.patch(f'collections/{os.getenv("POCKETBASE_MEMBERS_COLLECTION")}/records/{user_id}', \
                         data={'tarjeta_UID': self.detected_tag_id})
@@ -139,6 +143,30 @@ class Menu:
 
                 self.detected_tag_id = ''
         return
+
+    def __check_in(self):
+        card_uid_coincidences = self.api.get(f'collections/{os.getenv("POCKETBASE_MEMBERS_COLLECTION")}/records', \
+            params={'filter': f'tarjeta_UID = "{self.detected_tag_id}"'})['items']
+
+        if len(card_uid_coincidences) == 0:
+            self.buzzer.play_melody('Error')
+            self.screen.full_print('Error: tarjeta', 'desconocida')
+            sleep(1)
+        else:
+            user_id = card_uid_coincidences[0]['id']
+            user_name = card_uid_coincidences[0]['nombre']
+            if 'code' in self.api.post(f'collections/{os.getenv("POCKETBASE_ATTENDANCE_COLLECTION")}/records', \
+                json={'componente': user_id, 'evento': self.__current_session, 'presente': True, \
+                    'porcentaje_suma': 100}).keys():
+                self.buzzer.play_melody('Error')
+                self.screen.full_print("¡Ya has pasado", "la tarjeta!")
+            else:
+                self.buzzer.play_melody('Check in')
+                self.screen.full_print("ç Hola, ç", user_name.split(' ')[0])
+            sleep(1)
+
+        self.detected_tag_id = ''
+        self.home_screen()
         
 
 if __name__ == '__main__':

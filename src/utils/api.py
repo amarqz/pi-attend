@@ -13,23 +13,19 @@ class APIHandler():
     def get(self, endpoint: str, params: str=None):
         url = f'{self.__base_url}/{endpoint}'
         response = requests.get(url, params=params, headers=self.__headers)
-        response.raise_for_status()
         return response.json()
 
     def post(self, endpoint: str, data: dict = None, json: dict = None):
         url = f'{self.__base_url}/{endpoint}'
         response = requests.post(url, data=data, json=json, headers=self.__headers)
-        response.raise_for_status()
         return response.json()
 
     def patch(self, endpoint: str, data: dict = None):
         url = f'{self.__base_url}/{endpoint}'
         response = requests.patch(url, data=json.dumps(data), headers=self.__headers)
-        response.raise_for_status()
         return response.json()
 
     def delete(self, endpoint: str, data: dict = None, json: dict = None):
         url = f'{self.__base_url}/{endpoint}'
         response = requests.delete(url, headers=self.__headers)
-        response.raise_for_status()
         return response.json()
