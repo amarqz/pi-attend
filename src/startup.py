@@ -1,6 +1,7 @@
 import os
 import nanpy
 import threading
+import time
 from time import sleep
 from utils.functions import (await_confirmation, loading_screen, picklist)
 from utils.keypad import Keypad
@@ -53,6 +54,10 @@ class Menu:
             case 'Up' | 'Down':
                 self.__stop_detection_thread()
                 self.create_new_session()
+            case 'Right':
+                self.pair_card_user()
+                self.home_screen()
+                return
             case _:
                 return
 
@@ -101,7 +106,40 @@ class Menu:
         else:
             self.__current_session = today_event[0]['id']
             self.__session_type = today_event[0]['tipo']
-        print(self.__current_session)
+
+    def pair_card_user(self):
+        not_paired_users = self.api.get(f'collections/{os.getenv("POCKETBASE_MEMBERS_COLLECTION")}/records', \
+            params={'filter': 'tarjeta_UID = ""', 'sort': 'nombre'})['items']
+        if len(not_paired_users) == 0:
+            self.screen.full_print('No hay nadie', 'por registrar.')
+            sleep(3)
+            return
+        
+        selected_user = picklist(self, [user['nombre'] for user in not_paired_users], '¿Quién?')
+        if selected_user == None:
+            return
+
+        user_id = not_paired_users[next((index for index, user in enumerate(not_paired_users) if user['nombre'].startswith(selected_user)), 0)]['id']
+        self.screen.full_print(selected_user, 'Acercar tarjeta')
+        start = time.time()
+        while time.time() - start < 5:
+            if self.detected_tag_id != '':
+                self.buzzer.play_melody('1 Up')
+                self.screen.full_print(selected_user, self.detected_tag_id)
+
+                card_uid_coincidences = self.api.get(f'collections/{os.getenv("POCKETBASE_MEMBERS_COLLECTION")}/records', \
+                    params={'filter': f'tarjeta_UID = "{self.detected_tag_id}"'})['items']
+                if len(card_uid_coincidences) > 0:
+                    self.screen.full_print("Error:registrado", f"@ {card_uid_coincidences[0]['nombre']}")
+                else:
+                    self.api.patch(f'collections/{os.getenv("POCKETBASE_MEMBERS_COLLECTION")}/records/{user_id}', \
+                        data={'tarjeta_UID': self.detected_tag_id})
+                    self.screen.print_down("¡Éxito!")
+                    
+
+                self.detected_tag_id = ''
+        return
+        
 
 if __name__ == '__main__':
     load_dotenv()
