@@ -79,16 +79,17 @@ class Menu:
         if new_event_type == None:
             return
         
+        self.__session_type = new_event_type
+
         current_session_info = self.api.get(f"collections/{os.getenv('POCKETBASE_ATTENDANCE_COLLECTION')}/records", \
             params={'filter': f'evento = "{self.__current_session}"'})['items']
-
-        self.__session_type = new_event_type
         if len(current_session_info) == 0:
             self.api.patch(f'collections/{os.getenv("POCKETBASE_EVENTS_COLLECTION")}/records/{self.__current_session}', \
                 data={'tipo': self.__session_type})
         else:
             self.__current_session = self.api.post(f'collections/{os.getenv("POCKETBASE_EVENTS_COLLECTION")}/records', \
                 json={'tipo': self.__session_type})['id']
+            self.__attendants = 0
 
     def __create_detection_thread(self) -> None:
         self.__nfc_thread = threading.Thread(target=self.sensor.detect, name='detection-process', args=(self,))
@@ -104,11 +105,13 @@ class Menu:
             params={'filter': f"""created >= '{datetime.today().strftime("%Y-%m-%d")} 00:00:00'""", 'sort': '-created'})['items']
         if len(today_event) == 0:
             self.__session_type = 'Ensayo'
+            self.__attendants = 0
             self.__current_session = self.api.post(f'collections/{os.getenv("POCKETBASE_EVENTS_COLLECTION")}/records', \
                 json={'tipo': self.__session_type})['id']
         else:
             self.__current_session = today_event[0]['id']
             self.__session_type = today_event[0]['tipo']
+            self.__attendants = today_event[0]['asistentes']
 
     def __pair_card_user(self) -> None:
         not_paired_users = self.api.get(f'collections/{os.getenv("POCKETBASE_MEMBERS_COLLECTION")}/records', \
@@ -162,6 +165,9 @@ class Menu:
                 self.screen.full_print("¡Ya has pasado", "la tarjeta!")
             else:
                 self.buzzer.play_melody('Check in')
+                self.__attendants += 1
+                self.api.patch(f'collections/{os.getenv("POCKETBASE_EVENTS_COLLECTION")}/records/{self.__current_session}', \
+                    data={'asistentes': self.__attendants})
                 self.screen.full_print("ç Hola, ç", user_alias)
             sleep(1)
 
