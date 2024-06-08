@@ -154,7 +154,7 @@ class Menu:
             sleep(1)
         else:
             user_id = card_uid_coincidences[0]['id']
-            user_name = card_uid_coincidences[0]['nombre']
+            user_alias = card_uid_coincidences[0]['alias']
             if 'code' in self.api.post(f'collections/{os.getenv("POCKETBASE_ATTENDANCE_COLLECTION")}/records', \
                 json={'componente': user_id, 'evento': self.__current_session, 'presente': True, \
                     'porcentaje_suma': 100}).keys():
@@ -162,12 +162,11 @@ class Menu:
                 self.screen.full_print("¡Ya has pasado", "la tarjeta!")
             else:
                 self.buzzer.play_melody('Check in')
-                self.screen.full_print("ç Hola, ç", user_name.split(' ')[0])
+                self.screen.full_print("ç Hola, ç", user_alias)
             sleep(1)
 
         self.detected_tag_id = ''
         self.home_screen()
-        
 
 if __name__ == '__main__':
     load_dotenv()
