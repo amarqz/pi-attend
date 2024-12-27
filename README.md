@@ -5,7 +5,7 @@ An **Attendance Control System** built with Python, designed to work with simple
 ## Features
 
 - **NFC Integration**: Uses the PN532 NFC module for scanning NTAG215 cards to identify users.
-- **User Feedback**: Provides visual feedback through a 2-row, 5x8 ASCII LCD screen and audio feedback using a passive buzzer.
+- **User Feedback**: Provides visual feedback through a 2-row, 5x8 ASCII LCD screen and audio feedback using a passive buzzer. Custom 5x8 char and custom buzzer melody creation are allowed.
 - **Keypad Input**: Allows for simple administrator control through the buttons.
 - **Pocketbase Backend**: Centralized database management through Pocketbase, accessed via its RESTful API.
 - **Python-Powered**: Python scripts control all components, ensuring flexibility and extensibility.
